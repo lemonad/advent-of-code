@@ -40,6 +40,9 @@ class PuzzleSolver(ABC):
             m = re.search(pattern, line)
             yield m
 
-    def lines_split(self, split_str):
+    def lines_split(self, split_str, conversion=None):
         for line in self.raw_puzzle_input.split():
-            yield line.split(split_str)
+            if not conversion:
+                yield line.split(split_str)
+            else:
+                yield [conversion(x) for x in line.split(split_str)]
