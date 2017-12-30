@@ -7,6 +7,10 @@ from common.puzzlesolver import PuzzleSolver
 
 class Solver(PuzzleSolver):
 
+    @classmethod
+    def subproblem(cls, indata):
+        pass
+
     def solve_part_one(self):
         """Solution for part one."""
         return None
@@ -20,6 +24,8 @@ class Solver(PuzzleSolver):
 
 
 if __name__ == '__main__':
+    assert(Solver.subproblem('') == 0)
+
     s = Solver(from_file='input/dec__.in')
     (one, two) = s.solve()
     print("%s." % one)
