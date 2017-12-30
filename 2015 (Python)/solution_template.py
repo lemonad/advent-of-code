@@ -28,8 +28,8 @@ if __name__ == '__main__':
 
     s = Solver(from_file='input/dec__.in')
     (one, two) = s.solve()
-    print("%s." % one)
-    print("%s." % two)
+    print("%s" % one)
+    print("%s" % two)
 
     assert(one == 0)
     assert(two == 0)
