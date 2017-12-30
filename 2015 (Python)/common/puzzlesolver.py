@@ -32,16 +32,17 @@ class PuzzleSolver(ABC):
             yield c
 
     def lines(self):
-        for line in self.raw_puzzle_input.split():
+        for line in self.raw_puzzle_input.strip().split('\n'):
             yield line
 
-    def lines_match(self, pattern):
-        for line in self.raw_puzzle_input.split():
-            m = re.search(pattern, line)
+    def lines_search(self, pattern):
+        prog = re.compile(pattern)
+        for line in self.raw_puzzle_input.strip().split('\n'):
+            m = prog.search(line)
             yield m
 
     def lines_split(self, split_str, conversion=None):
-        for line in self.raw_puzzle_input.split():
+        for line in self.raw_puzzle_input.strip().split('\n'):
             if not conversion:
                 yield line.split(split_str)
             else:
