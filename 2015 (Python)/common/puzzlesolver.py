@@ -3,6 +3,7 @@ Abstract base class for advent of code puzzle solvers.
 
 """
 from abc import ABC, abstractmethod
+import json
 import re
 
 
@@ -47,3 +48,6 @@ class PuzzleSolver(ABC):
                 yield line.split(split_str)
             else:
                 yield [conversion(x) for x in line.split(split_str)]
+
+    def as_json(self):
+        return json.loads(self.raw_puzzle_input)
