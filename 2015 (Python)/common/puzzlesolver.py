@@ -4,6 +4,7 @@ Abstract base class for advent of code puzzle solvers.
 """
 from abc import ABC, abstractmethod
 import json
+import numpy as np
 import re
 
 
@@ -54,3 +55,11 @@ class PuzzleSolver(ABC):
 
     def as_json(self):
         return json.loads(self.raw_puzzle_input)
+
+    def as_bool_numpy_array(self, false='.'):
+        """Given a matrix of .'s and #'s, return a boolean numpy array."""
+        m = []
+        for line in self.lines():
+            row = (np.fromstring(line, dtype='b') != ord(false)).astype('?')
+            m.append(row)
+        return np.array(m)
