@@ -32,9 +32,12 @@ class PuzzleSolver(ABC):
         for c in self.raw_puzzle_input:
             yield c
 
-    def lines(self):
+    def lines(self, conversion=None):
         for line in self.raw_puzzle_input.strip().split('\n'):
-            yield line
+            if not conversion:
+                yield line
+            else:
+                yield conversion(line)
 
     def lines_search(self, pattern):
         prog = re.compile(pattern)
