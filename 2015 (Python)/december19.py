@@ -87,14 +87,6 @@ class Solver(PuzzleSolver):
 
 
 if __name__ == '__main__':
-    s = Solver(from_file='input/dec19-sample.in')
-    one = s.solve_part_one()
-    assert(one == 4)
-
-    s = Solver(from_file='input/dec19-sample2.in')
-    two = s.solve_part_two()
-    assert(two == 6)
-
     s = Solver(from_file='input/dec19.in')
     (one, two) = s.solve()
     print("How many distinct molecules can be created? %d" % one)
