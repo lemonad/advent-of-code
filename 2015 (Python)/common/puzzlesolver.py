@@ -58,6 +58,14 @@ class PuzzleSolver(ABC):
     def as_int(self):
         return int(self.raw_puzzle_input)
 
+    def as_dict(self):
+        d = {}
+        for m in self.lines_search('^(.+?)\s*:\s*(.+?)\s*$'):
+            if m.group(1) in d:
+                raise RuntimeError("Duplicate keys in input")
+            d[m.group(1)] = m.group(2)
+        return d
+
     def as_bool_numpy_array(self, false='.'):
         """Given a matrix of .'s and #'s, return a boolean numpy array."""
         import numpy as np
