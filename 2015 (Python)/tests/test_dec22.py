@@ -1,18 +1,20 @@
 import unittest
 
-from december22 import Solver
+from december22 import BossState, PlayerState, Solver
 
 
 class TestDec22(unittest.TestCase):
 
     def test_examples_for_part_one(self):
         s = Solver(from_file='input/dec22.in')
-        self.assertLess(s.does_player_win_fight(10, 0, 13, 8, 250),
-                        s.LARGE_SPENT)
+        player = PlayerState(10, 250)
+        boss = BossState(13, 8)
+        self.assertLess(s.does_player_win_fight(player, boss), s.LARGE_SPENT)
 
         s = Solver(from_file='input/dec22.in')
-        self.assertLess(s.does_player_win_fight(10, 0, 14, 8, 250),
-                        s.LARGE_SPENT)
+        player = PlayerState(10, 250)
+        boss = BossState(14, 8)
+        self.assertLess(s.does_player_win_fight(player, boss), s.LARGE_SPENT)
 
     def test_solution(self):
         s = Solver(from_file='input/dec22.in')
