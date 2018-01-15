@@ -74,3 +74,19 @@ class PuzzleSolver(ABC):
             row = (np.fromstring(line, dtype='b') != ord(false)).astype('?')
             m.append(row)
         return np.array(m)
+
+    def as_instructions(self):
+        for m in self.lines_search(self.PATTERN):
+            op = m.group(1)
+            args = []
+            arg1 = m.group(2)
+            if arg1:
+                args.append(arg1)
+
+            rest = m.group(3)
+            if rest:
+                for r in rest.split(','):
+                    if not r:
+                        continue
+                    args.append(r.strip(' ,'))
+            yield (op, args)
