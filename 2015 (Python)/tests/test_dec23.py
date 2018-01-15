@@ -7,7 +7,8 @@ class TestDec23(unittest.TestCase):
 
     def test_examples_for_part_one(self):
         s = Solver(from_file='input/dec23-sample.in')
-        reg_a, reg_b = s.runVirtualMachine()
+        runvm = s.create_function()
+        reg_a, reg_b = runvm(0, 0)
         self.assertEqual(reg_a, 2)
         self.assertEqual(reg_b, 0)
 

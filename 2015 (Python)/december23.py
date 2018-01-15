@@ -3,6 +3,11 @@ December 23, Advent of Code 2015 (Jonas Nockert / @lemonad)
 
 Runs the given code in a virtual machine using Python bytecode.
 
+NOTE: Currently can't be run with pypy as it only supports 3.5 and
+bytecode structure was changed significantly with Python 3.6. Now
+all instructions are two bytes and EXTENDED_ARG instructions need
+to be used to provide arguments > 255.
+
 """
 import opcode
 import types
@@ -12,52 +17,20 @@ from common.puzzlesolver import PuzzleSolver
 
 class Solver(PuzzleSolver):
 
-    @staticmethod
-    def create_function(varnames, consts, bytecode):
-        """Create program out of bytecode."""
-        # TODO Fill in co_lnotab so exceptions report proper line numbers.
-        code = types.CodeType(
-                0,  # co_argcount (no function arguments used here)
-                0,  # co_kwonlyargcount
-                len(varnames),  # co_nlocals
-                100,  # co_stacksize
-                67,  # co_flags
-                bytes(bytecode),  # co_code
-                consts,  # co_consts
-                (),  # co_names (no globals used here)
-                varnames,  # co_varnames
-                'vm',  # co_filename
-                'runvm',  # co_name
-                1,  # co_firstlineno
-                bytes(),  # co_lnotab
-                (),  # co_freevars
-                (),  # co_cellvars
-            )
+    def create_program_bytecode(self):
+        """Creates a program emulating the given assembler code.
 
-        # Create a function out of the program.
-        return types.FunctionType(code, {})
+        Returns tuple of bytecode, constants, variable names.
 
-    def runVirtualMachine(self, reg_a=0, reg_b=0):
-        """Creates a vm emulating the given assembler code.
-
-        Returns a tuple of registers a and b after execution.
+        The program will take two arguments (registers a and b) and
+        returns a tuple of a and b.
         """
-        consts = (None, 0, 1, 2, 3, reg_a, reg_b)
+        consts = (None, 0, 1, 2, 3)
         varnames = ('a', 'b')
         b = bytearray()
         line_no = 0
         line_offsets = []
         jump_table = []
-
-        # Initialize registers a and b.
-        ixa = varnames.index('a')
-        ixb = varnames.index('b')
-        cixa = consts.index(reg_a)
-        cixb = consts.index(reg_b)
-        b.extend([opcode.opmap['LOAD_CONST'], cixa])
-        b.extend([opcode.opmap['STORE_FAST'], ixa])
-        b.extend([opcode.opmap['LOAD_CONST'], cixb])
-        b.extend([opcode.opmap['STORE_FAST'], ixb])
 
         # Create byte code for the given program and fills in the
         # jump table for later filling in.
@@ -121,9 +94,11 @@ class Solver(PuzzleSolver):
                 b.extend([opcode.opmap['POP_JUMP_IF_TRUE'], 0])
             line_no += 1
 
-        # Out of bound jumps will be pointed here. Returns value of
-        # register b.
+        # Out of bound jumps will be pointed here. Returns a tuple
+        # of registers a and b.
         the_end = len(b)
+        ixa = varnames.index('a')
+        ixb = varnames.index('b')
         b.extend([opcode.opmap['LOAD_FAST'], ixa])
         b.extend([opcode.opmap['LOAD_FAST'], ixb])
         b.extend([opcode.opmap['BUILD_TUPLE'], 2])
@@ -141,18 +116,47 @@ class Solver(PuzzleSolver):
             # Least significant byte goes into jump instruction.
             b[offset + 3] = jump_addr & 0xff
 
-        runvm = Solver.create_function(varnames, consts, b)
-        return runvm()
+        return b, consts, varnames
+
+    def create_function(self):
+        """Create function out of bytecode."""
+        bytecode, consts, varnames = self.create_program_bytecode()
+        # TODO Fill in co_lnotab so exceptions report proper line numbers.
+        # https://svn.python.org/projects/python/branches/pep-0384/Objects/lnotab_notes.txt
+        code = types.CodeType(
+                2,  # co_argcount (registers a and b)
+                0,  # co_kwonlyargcount
+                len(varnames),  # co_nlocals
+                100,  # co_stacksize
+                67,  # co_flags
+                bytes(bytecode),  # co_code
+                consts,  # co_consts
+                (),  # co_names (no globals used here)
+                varnames,  # co_varnames
+                'vm',  # co_filename
+                'runvm',  # co_name
+                1,  # co_firstlineno
+                bytes(),  # co_lnotab
+                (),  # co_freevars
+                (),  # co_cellvars
+            )
+
+        # Create a function out of the program.
+        return types.FunctionType(code, {})
 
     def solve(self):
-        _, res1 = self.runVirtualMachine()
-        _, res2 = self.runVirtualMachine(reg_a=1)
+        runvm = self.create_function()
+        _, res1 = runvm(0, 0)
+        _, res2 = runvm(1, 0)
         return (res1, res2)
 
 
 if __name__ == '__main__':
+    import time
+    start_time = time.time()
     s = Solver(from_file='input/dec23.in')
     (one, two) = s.solve()
+    print("--- %.5f seconds ---" % (time.time() - start_time))
     print("Value in register b after completion? %d" % one)
     print("Value in register b when a starts as 1? %d" % two)
 
