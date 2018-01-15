@@ -12,11 +12,6 @@ from common.puzzlesolver import PuzzleSolver
 
 class Solver(PuzzleSolver):
 
-    PATTERN = "^(\w+)\s*([^,\s]+)*(,\s*[^,\s]+)*"
-
-    def __init__(self, *args, **kwargs):
-        super(Solver, self).__init__(*args, **kwargs)
-
     @staticmethod
     def create_function(varnames, consts, bytecode):
         """Create program out of bytecode."""

@@ -76,7 +76,8 @@ class PuzzleSolver(ABC):
         return np.array(m)
 
     def as_instructions(self):
-        for m in self.lines_search(self.PATTERN):
+        PATTERN = "^(\w+)\s*([^,\s]+)*(,\s*[^,\s]+)*"
+        for m in self.lines_search(PATTERN):
             op = m.group(1)
             args = []
             arg1 = m.group(2)
