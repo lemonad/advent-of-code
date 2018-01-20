@@ -91,3 +91,7 @@ class PuzzleSolver(ABC):
                         continue
                     args.append(r.strip(' ,'))
             yield (op, args)
+
+    def search(self, pattern):
+        prog = re.compile(pattern)
+        return prog.search(self.raw_puzzle_input.strip())
