@@ -6,7 +6,6 @@ from common.puzzlesolver import PuzzleSolver
 
 
 class Solver(PuzzleSolver):
-
     def __init__(self, *args, **kwargs):
         super(Solver, self).__init__(*args, **kwargs)
 
@@ -40,16 +39,8 @@ class Solver(PuzzleSolver):
         return (self.solve_part_one(), self.solve_part_two())
 
 
-if __name__ == '__main__':
-    # assert(Solver.subproblem('') == 0)
-
-    s = Solver(from_str='5 10 25')
-    assert(s.solve_part_one() == 0)
-
-    s = Solver(from_file='input/december03.input')
+if __name__ == "__main__":
+    s = Solver(from_file="input/december03.input")
     (one, two) = s.solve()
-    assert(one == 869)
-    assert(two == 1544)
-
     print("Valid triangles (columns): {:d}".format(one))
     print("Valid triangles (rows): {:d}".format(two))
