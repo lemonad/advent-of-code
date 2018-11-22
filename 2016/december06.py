@@ -13,7 +13,6 @@ from common.puzzlesolver import PuzzleSolver
 
 
 class Solver(PuzzleSolver):
-
     def __init__(self, *args, **kwargs):
         super(Solver, self).__init__(*args, **kwargs)
 
@@ -24,7 +23,7 @@ class Solver(PuzzleSolver):
         for n in range(n_cols):
             unique, counts = np.unique(C[:, n], return_counts=True)
             max_index = method(counts)
-            message += unique[max_index].decode('utf-8')
+            message += unique[max_index].decode("utf-8")
         return message
 
     def solve_part_one(self):
@@ -39,34 +38,8 @@ class Solver(PuzzleSolver):
         return (self.solve_part_one(), self.solve_part_two())
 
 
-if __name__ == '__main__':
-    test_data = """
-eedadn
-drvtee
-eandsr
-raavrd
-atevrs
-tsrnev
-sdttsa
-rasrtv
-nssdts
-ntnada
-svetve
-tesnvt
-vntsnd
-vrdear
-dvrsen
-enarar
-""".strip()
-    s = Solver(from_str=test_data)
-    assert(s.solve_part_one() == "easter")
-
-    s = Solver(from_str=test_data)
-    assert(s.solve_part_two() == "advent")
-
-    s = Solver(from_file='input/december06.input')
+if __name__ == "__main__":
+    s = Solver(from_file="input/december06.input")
     (one, two) = s.solve()
     print("Repetition code: {:s}".format(one))
     print("Modified repetition code: {:s}".format(two))
-    assert(one == "tkspfjcc")
-    assert(two == "xrlmbypn")
