@@ -4,6 +4,7 @@ December DayDD, Advent of Code YearYYYY (Jonas Nockert / @lemonad)
 """
 import math
 import os
+import re
 import string
 
 import numpy as np

@@ -19,7 +19,7 @@ class TestDecemberDayDD(unittest.TestCase):
     #         Solver(from_str='(').solve_part_two()
 
     # def test_solution(self):
-    #     (one, two) = Solver(from_file='input/december01.input').solve()
+    #     (one, two) = Solver(from_file='input/decemberDayDD.input').solve()
     #     self.assertEqual(one, 332)
     #     self.assertEqual(two, 166)
     pass
