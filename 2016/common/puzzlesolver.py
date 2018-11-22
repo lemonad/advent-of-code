@@ -12,10 +12,11 @@ import numpy as np
 class PuzzleSolver(ABC):
     def __init__(self, from_file=None, from_str=None):
         if not (from_file or from_str):
-            raise ValueError('PuzzleSolver needs to be initialized from '
-                             'either file or string.')
+            raise ValueError(
+                "PuzzleSolver needs to be initialized from " "either file or string."
+            )
         elif from_file and from_str:
-            raise ValueError('PuzzleSolver ambiguous initialization.')
+            raise ValueError("PuzzleSolver ambiguous initialization.")
         elif from_str:
             self.raw_puzzle_input = from_str
         else:
@@ -35,7 +36,7 @@ class PuzzleSolver(ABC):
             yield c
 
     def lines(self, conversion=None):
-        for line in self.raw_puzzle_input.strip().split('\n'):
+        for line in self.raw_puzzle_input.strip().split("\n"):
             if not conversion:
                 yield line
             else:
@@ -43,12 +44,12 @@ class PuzzleSolver(ABC):
 
     def lines_search(self, pattern):
         prog = re.compile(pattern)
-        for line in self.raw_puzzle_input.strip().split('\n'):
+        for line in self.raw_puzzle_input.strip().split("\n"):
             m = prog.search(line)
             yield m
 
     def lines_split(self, split_str, conversion=None):
-        for line in self.raw_puzzle_input.strip().split('\n'):
+        for line in self.raw_puzzle_input.strip().split("\n"):
             if not conversion:
                 yield line.split(split_str)
             else:
@@ -69,17 +70,17 @@ class PuzzleSolver(ABC):
 
     def as_dict(self):
         d = {}
-        for m in self.lines_search('^(.+?)\s*:\s*(.+?)\s*$'):
+        for m in self.lines_search("^(.+?)\s*:\s*(.+?)\s*$"):
             if m.group(1) in d:
                 raise RuntimeError("Duplicate keys in input")
             d[m.group(1)] = m.group(2)
         return d
 
-    def as_bool_numpy_array(self, false='.'):
+    def as_bool_numpy_array(self, false="."):
         """Given a matrix of .'s and #'s, return a boolean numpy array."""
         m = []
         for line in self.lines():
-            row = (np.fromstring(line, dtype='b') != ord(false)).astype('?')
+            row = (np.fromstring(line, dtype="b") != ord(false)).astype("?")
             m.append(row)
         return np.array(m)
 
@@ -87,7 +88,7 @@ class PuzzleSolver(ABC):
         """Given a matrix of characters return an numpy array."""
         m = []
         for line in self.lines():
-            row = np.fromstring(line, dtype='c')
+            row = np.fromstring(line, dtype="c")
             m.append(row)
         return np.array(m)
 
@@ -102,10 +103,10 @@ class PuzzleSolver(ABC):
 
             rest = m.group(3)
             if rest:
-                for r in rest.split(','):
+                for r in rest.split(","):
                     if not r:
                         continue
-                    args.append(r.strip(' ,'))
+                    args.append(r.strip(" ,"))
             yield (op, args)
 
     def search(self, pattern):
