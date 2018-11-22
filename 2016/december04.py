@@ -14,21 +14,20 @@ from common.puzzlesolver import PuzzleSolver
 
 
 class Solver(PuzzleSolver):
-
     def __init__(self, *args, **kwargs):
         super(Solver, self).__init__(*args, **kwargs)
 
     @staticmethod
     def get_room_data(room):
-        [code, cksum] = room.split('[')
+        [code, cksum] = room.split("[")
         cksum = cksum[:-1]
-        words = code.split('-')
+        words = code.split("-")
         sector_id = int(words.pop())
         return (words, sector_id, cksum)
 
     @staticmethod
     def is_real_room(words, cksum):
-        letters = sorted(''.join(words))
+        letters = sorted("".join(words))
         chars = set(letters)
         d = {}
         for c in chars:
@@ -53,19 +52,19 @@ class Solver(PuzzleSolver):
     def solve_part_two(self):
         """Solution for part two."""
         chars = "abcdefghijklmnopqrstuvwxyz"
-        offsets = np.array([ord(x) - ord('a') for x in chars])
+        offsets = np.array([ord(x) - ord("a") for x in chars])
 
         for room in self.lines():
             words, sector_id, cksum = self.get_room_data(room)
-            name = ' '.join(words)
-            re_chars = [chr(x + ord('a')) for x in np.mod(offsets + sector_id, 26)]
+            name = " ".join(words)
+            re_chars = [chr(x + ord("a")) for x in np.mod(offsets + sector_id, 26)]
             new_name = ""
             for n in name:
                 if n.isspace():
-                    new_name += ' '
+                    new_name += " "
                     continue
 
-                o = ord(n) - ord('a')
+                o = ord(n) - ord("a")
                 new_name += re_chars[o]
             if new_name == "northpole object storage":
                 return sector_id
@@ -76,17 +75,8 @@ class Solver(PuzzleSolver):
         return (self.solve_part_one(), self.solve_part_two())
 
 
-if __name__ == '__main__':
-    s = Solver(from_str='aaaaa-bbb-z-y-x-123[abxyz]\n'
-                        'a-b-c-d-e-f-g-h-987[abcde]\n'
-                        'not-a-real-room-404[oarel]\n'
-                        'totally-real-room-200[decoy]')
-    assert(s.solve_part_one() == 1514)
-
-    s = Solver(from_file='input/december04.input')
+if __name__ == "__main__":
+    s = Solver(from_file="input/december04.input")
     (one, two) = s.solve()
-    assert(one == 245102)
-    assert(two == 324)
-
     print("Sum of sector IDs:", one)
     print("Sector id:", two)
