@@ -18,10 +18,10 @@ class PuzzleSolver(ABC):
         elif from_file and from_str:
             raise ValueError("PuzzleSolver ambiguous initialization.")
         elif from_str:
-            self.raw_puzzle_input = from_str
+            self.raw_puzzle_input = from_str.strip()
         else:
             with open(from_file) as f:
-                self.raw_puzzle_input = f.read()
+                self.raw_puzzle_input = f.read().strip()
 
     @abstractmethod
     def solve(self):
@@ -36,7 +36,7 @@ class PuzzleSolver(ABC):
             yield c
 
     def lines(self, conversion=None):
-        for line in self.raw_puzzle_input.strip().split("\n"):
+        for line in self.raw_puzzle_input.split("\n"):
             if not conversion:
                 yield line
             else:
@@ -44,12 +44,12 @@ class PuzzleSolver(ABC):
 
     def lines_search(self, pattern):
         prog = re.compile(pattern)
-        for line in self.raw_puzzle_input.strip().split("\n"):
+        for line in self.raw_puzzle_input.split("\n"):
             m = prog.search(line)
             yield m
 
     def lines_split(self, split_str, conversion=None):
-        for line in self.raw_puzzle_input.strip().split("\n"):
+        for line in self.raw_puzzle_input.split("\n"):
             if not conversion:
                 yield line.split(split_str)
             else:
@@ -111,4 +111,4 @@ class PuzzleSolver(ABC):
 
     def search(self, pattern):
         prog = re.compile(pattern)
-        return prog.search(self.raw_puzzle_input.strip())
+        return prog.search(self.raw_puzzle_input)
