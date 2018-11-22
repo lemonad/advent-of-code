@@ -13,7 +13,6 @@ from common.puzzlesolver import PuzzleSolver
 
 
 class Solver(PuzzleSolver):
-
     def __init__(self, *args, **kwargs):
         super(Solver, self).__init__(*args, **kwargs)
         self.reset()
@@ -28,7 +27,7 @@ class Solver(PuzzleSolver):
         move_len = int(move_str[1:])
 
         x = self.dir[0]
-        if move_str[0] == 'L':
+        if move_str[0] == "L":
             self.dir[0] = -self.dir[1]
             self.dir[1] = x
         else:
@@ -67,8 +66,8 @@ class Solver(PuzzleSolver):
         return (self.solve_part_one(), self.solve_part_two())
 
 
-if __name__ == '__main__':
-    s = Solver(from_file='input/december01.input')
+if __name__ == "__main__":
+    s = Solver(from_file="input/december01.input")
     (one, two) = s.solve()
     print("Distance to Easter Bunny HQ: {:d}".format(one))
     print("Distance to twice visited block: {:d}".format(two))

@@ -13,7 +13,6 @@ from common.puzzlesolver import PuzzleSolver
 
 
 class Solver(PuzzleSolver):
-
     def __init__(self, *args, **kwargs):
         super(Solver, self).__init__(*args, **kwargs)
 
@@ -34,19 +33,21 @@ class Solver(PuzzleSolver):
 
 
 def main(input_data):
-    s = Solver(from_str='...')
-    print(s.solve_part_one())
+    s = Solver(from_str="...")
+    one = s.solve_part_one()
+    print(one)
     return
 
-    s = Solver(from_str='...')
-    print(s.solve_part_two())
+    s = Solver(from_str="...")
+    two = s.solve_part_two()
+    print(two)
     return
 
     # assert(s.solve_part_one() == 0)
     # assert(s.solve_part_two() == 0)
 
     # s = Solver(from_str=input_data)
-    s = Solver(from_file='InputFILENAME')
+    s = Solver(from_file="InputFILENAME")
     (one, two) = s.solve()
     print(one)
     print(two)
@@ -56,7 +57,7 @@ def main(input_data):
     # assert(two == 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     input_data = """
 InputCONTENT
     """.strip()
