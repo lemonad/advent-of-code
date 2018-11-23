@@ -2,6 +2,7 @@
 December DayDD, Advent of Code YearYYYY (Jonas Nockert / @lemonad)
 
 """
+from enum import Enum
 import math
 import os
 import re
