@@ -6,8 +6,6 @@ from abc import ABC, abstractmethod
 import json
 import re
 
-import numpy as np
-
 
 class PuzzleSolver(ABC):
     def __init__(self, from_file=None, from_str=None):
@@ -78,6 +76,7 @@ class PuzzleSolver(ABC):
 
     def as_bool_numpy_array(self, false="."):
         """Given a matrix of .'s and #'s, return a boolean numpy array."""
+        import numpy as np
         m = []
         for line in self.lines():
             row = (np.fromstring(line, dtype="b") != ord(false)).astype("?")
@@ -86,6 +85,7 @@ class PuzzleSolver(ABC):
 
     def as_char_numpy_array(self):
         """Given a matrix of characters return an numpy array."""
+        import numpy as np
         m = []
         for line in self.lines():
             row = np.fromstring(line, dtype="c")
