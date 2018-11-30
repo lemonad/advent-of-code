@@ -92,8 +92,9 @@ class PuzzleSolver(ABC):
             m.append(row)
         return np.array(m)
 
-    def as_instructions(self):
-        PATTERN = "^(\w+)\s*([^,\s]+)*(,\s*[^,\s]+)*"
+    def as_instructions(self, separator=','):
+        PATTERN = "^\s*(\w+)\s*([^{0}\s]+)*({0}\s*[^{0}\s]+)*".format(
+                separator)
         for m in self.lines_search(PATTERN):
             op = m.group(1)
             args = []
