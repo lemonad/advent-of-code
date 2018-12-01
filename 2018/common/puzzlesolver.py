@@ -36,14 +36,14 @@ class PuzzleSolver(ABC):
     def lines(self, conversion=None):
         for line in self.raw_puzzle_input.split("\n"):
             if not conversion:
-                yield line
+                yield line.strip()
             else:
-                yield conversion(line)
+                yield conversion(line.strip())
 
     def lines_search(self, pattern):
         prog = re.compile(pattern)
         for line in self.raw_puzzle_input.split("\n"):
-            m = prog.search(line)
+            m = prog.search(line.strip())
             yield m
 
     def lines_split(self, split_str, conversion=None):
@@ -51,7 +51,8 @@ class PuzzleSolver(ABC):
             if not conversion:
                 yield line.split(split_str)
             else:
-                yield [conversion(x) for x in line.split(split_str)]
+                yield [conversion(x)
+                        for x in line.split(split_str)]
 
     def as_json(self):
         return json.loads(self.raw_puzzle_input)
