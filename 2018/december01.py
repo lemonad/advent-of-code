@@ -21,7 +21,7 @@ class Solver(PuzzleSolver):
         freq = 0
         for x in self.lines():
             delta = int(x[1:])
-            freq += delta if x[0] == '+' else -delta
+            freq += delta if x[0] == "+" else -delta
         return freq
 
     def solve_part_two(self):
@@ -32,7 +32,7 @@ class Solver(PuzzleSolver):
         while True:
             for x in self.lines():
                 delta = int(x[1:])
-                freq += delta if x[0] == '+' else -delta
+                freq += delta if x[0] == "+" else -delta
                 if freq in freqs:
                     found = True
                     break
