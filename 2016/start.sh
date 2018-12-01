@@ -14,12 +14,22 @@ PUZZLE_FILE="input/december${DAY}.input"
 
 # Avoid overwriting solutions.
 if [ -f $OUTPUT ]; then
-    echo "File already exists!"
-    exit 0
+    echo "Solution already exists!"
+    exit 1
+fi
+
+# Avoid creating solution if session cookie is not set.
+if [ -z "$AOC_SESSION_COOKIE" ]; then
+    echo "Variable AOC_SESSION_COOKIE not set!"
+    exit 1
 fi
 
 # Fetch input file.
-curl "${PUZZLE_URL}" -H "cookie: session=${AOC_SESSION_COOKIE}" -o "${PUZZLE_FILE}" 2>/dev/null
+curl --fail "${PUZZLE_URL}" -H "cookie: session=${AOC_SESSION_COOKIE}" -o "${PUZZLE_FILE}" 2>/dev/null
+if [ $? -ne 0 ]; then
+  echo "Variable AOC_SESSION_COOKIE expired!"
+  exit 1
+fi
 
 mkdir -p "$(dirname ${TEST_OUTPUT})"
 cp "${INPUT}" "${OUTPUT}"
