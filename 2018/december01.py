@@ -6,9 +6,6 @@ import math
 import os
 import string
 
-import numpy as np
-import pandas as pd
-
 from common.puzzlesolver import PuzzleSolver
 
 
@@ -18,27 +15,20 @@ class Solver(PuzzleSolver):
 
     def solve_part_one(self):
         """Solution for part one."""
-        freq = 0
-        for x in self.lines():
-            delta = int(x[1:])
-            freq += delta if x[0] == "+" else -delta
-        return freq
+        return sum([int(x) for x in self.lines()])
 
     def solve_part_two(self):
         """Solution for part two."""
         freq = 0
         freqs = {0: True}
         found = False
-        while True:
+        while not found:
             for x in self.lines():
-                delta = int(x[1:])
-                freq += delta if x[0] == "+" else -delta
+                freq += int(x) 
                 if freq in freqs:
                     found = True
                     break
                 freqs[freq] = True
-            if found:
-                break
         return freq
 
     def solve(self):
