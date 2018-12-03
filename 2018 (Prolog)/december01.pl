@@ -11,19 +11,16 @@
 
 solve :-
   read_input_from_file(`input/december01.input`, Ns) , ! ,
-  % phrase_from_file(nats(Ns), `input/december01.input`) , ! ,
   solve_part_one(Ns, One) ,
   write('Resulting frequency: ') , write(One) , nl ,
   solve_part_two(Ns, Two) ,
   write('Frequency reached twice: ') , write(Two) , nl .
 
 solve_part_one(Ns, Res) :-
-  % phrase_from_file(nats(Ns), `input/december01.input`) , ! ,
   sum_list(Ns, S) , ! ,
   Res = S .
 
 solve_part_two(Ns, Res) :-
-  % phrase_from_file(nats(Ns), `input/december01.input`) , ! ,
   empty_assoc(A0) ,
   S = 0 ,
   twice(Ns, Ns, S, A0, Freq) , ! ,
