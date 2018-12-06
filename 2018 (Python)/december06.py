@@ -29,17 +29,25 @@ class Solver(PuzzleSolver):
         max_x = center[0] + radius
         min_y = center[1] - radius
         max_y = center[1] + radius
+        if radius == 0:
+            n_el = 1
+        else:
+            n_el = 2 * max(0, max_x - min_x + 1) + 2 * max(0, max_y - min_y - 1)
 
-        R = np.zeros((0, 2), dtype="int")
+        R = np.zeros((n_el, 2), dtype="int")
+        i = 0
         # Include corners for x but not for y.
         for x in range(min_x, max_x + 1):
-            R = np.append(R, [[x, min_y]], 0)
+            R[i] = [x, min_y]
+            i += 1
             if radius > 0:
-                R = np.append(R, [[x, max_y]], 0)
+                R[i] = [x, max_y]
+                i += 1
         for y in range(min_y + 1, max_y):
             if radius > 0:
-                R = np.append(R, [[min_x, y]], 0)
-                R = np.append(R, [[max_x, y]], 0)
+                R[i] = [min_x, y]
+                R[i + 1] = [max_x, y]
+                i += 2
 
         n_below = 0
         counts = np.zeros((len(P) + 1, 1))
@@ -60,21 +68,18 @@ class Solver(PuzzleSolver):
         P, center = self.get_points()
         # Assume all regions present on distant perimeter has
         # infinite area.
-        infcounts, _ = self.perimeter_counts(P, center, 1000)
+        infcounts, _ = self.perimeter_counts(P, center, 500)
         infcounts_nz = infcounts[1:] != 0
 
         areas = np.zeros((len(P), 1))
-        for i, p in enumerate(P):
-            # Point has infinite region?
-            if infcounts_nz[i]:
-                continue
-            r = 0
-            while True:
-                counts, _ = self.perimeter_counts(P, p, r)
-                if not counts[i + 1]:
-                    break
-                areas[i] += counts[i + 1]
-                r += 1
+        r = 0
+        while True:
+            counts, _ = self.perimeter_counts(P, center, r)
+            counts = counts[1:]
+            if np.sum(counts[~infcounts_nz]) == 0:
+                break
+            areas += counts
+            r += 1
         return int(np.max(areas[~infcounts_nz]))
 
     def solve_part_two(self, limit=10000):
