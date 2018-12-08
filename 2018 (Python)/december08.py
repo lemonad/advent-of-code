@@ -12,28 +12,24 @@ class Solver(PuzzleSolver):
     @staticmethod
     def read_node(l, ix, metadata, just_sum=True):
         """Reads node (and all of its child nodes recursively)."""
-        n_children = l[ix]
-        n_metadata = l[ix + 1]
+        (n_children, n_metadata) = l[ix : ix + 2]
         ix += 2
 
         child_metadata = []
         for c in range(n_children):
             ix = Solver.read_node(l, ix, child_metadata, just_sum)
 
-        node_metadata = []
-        for n in range(n_metadata):
-            node_metadata.append(l[ix])
-            ix += 1
+        node_metadata = l[ix : ix + n_metadata]
+        ix += n_metadata
 
-        node_sum = 0
         if just_sum:
             node_sum = sum(child_metadata) + sum(node_metadata)
         elif not n_children:
             node_sum = sum(node_metadata)
         else:
-            for m in node_metadata:
-                if m <= n_children:
-                    node_sum += child_metadata[m - 1]
+            node_sum = sum(
+                [child_metadata[m - 1] for m in node_metadata if m <= n_children]
+            )
         metadata.append(node_sum)
         return ix
 
