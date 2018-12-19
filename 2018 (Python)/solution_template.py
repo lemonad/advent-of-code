@@ -10,6 +10,7 @@ import string
 
 import numpy as np
 import pandas as pd
+import sympy as sp
 
 from common.puzzlesolver import PuzzleSolver
 
@@ -41,13 +42,13 @@ def main(input_data):
     s = Solver(from_str=example_input)
     one = s.solve_part_one()
     print(one)
-    assert(one == 0)
+    assert one == 0
 
     # s = Solver(from_file="InputFILENAME")
     s = Solver(from_str=example_input)
     two = s.solve_part_two()
     print(two)
-    assert(two == 0)
+    assert two == 0
     return
 
     s = Solver(from_file="InputFILENAME")
