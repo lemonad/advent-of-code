@@ -12,58 +12,64 @@ import numpy as np
 class PriorityQueue:
     def __init__(self):
         self.elements = []
+        self.n = 1
 
     def empty(self):
         return len(self.elements) == 0
 
-    def put(self, item, priority):
-        heapq.heappush(self.elements, (priority, item))
+    def put(self, item, priority, extra=None):
+        """Put a new item on the priority queue with optional extra ordering tuple"""
+        if extra is None:
+            extra = ()
+        # Break ties using entry count n.
+        heapq.heappush(self.elements, (priority, *extra, item))
+        self.n += 1
 
     def get(self):
-        return heapq.heappop(self.elements)[1]
+        return heapq.heappop(self.elements)[-1]
 
 
 class GridGraph:
     def __init__(self):
-        self.next_index = 1
         self.g = {}
 
     @classmethod
     def from_chararray(cls, m, skip_symbol="#"):
-        def coord_to_index(y, x, n_rows, m_cols):
-            if x < 0 or x >= m_cols or y < 0 or y >= m_rows:
-                return None
-            return y * m_cols + x
-
         graph = cls()
 
         n_rows, m_cols = np.shape(m)
-        for n in range(n_rows):
-            for m in range(m_cols):
-                symbol = m[n, m].decode("utf-8")
+        for y in range(n_rows):
+            for x in range(m_cols):
+                node_id = (x, y)
+                symbol = m[y, x].decode("utf-8")
                 if symbol == skip_symbol:
                     continue
-                i = coord_to_index(n, m, n_rows, m_cols)
-                graph.add_node(
-                    i, extra={"symbol": symbol, "pos": (m, n)}  # Note: (x, y).
-                )
-                # east = coord_to_index(n, m + 1, n_rows, m_cols)
-                # south = coord_to_index(n + 1, m, n_rows, m_cols)
-                north = coord_to_index(n - 1, m, n_rows, m_cols)
-                if north:
-                    graph.add_edge(i, north)
-                west = coord_to_index(n, m - 1, n_rows, m_cols)
-                if west:
-                    graph.add_edge(i, west)
+                graph.add_node(node_id, extra={"symbol": symbol})
+                north_id = (x, y - 1)
+                if graph.get_node(north_id):
+                    graph.add_edge(node_id, north_id)
+                west_id = (x - 1, y)
+                if graph.get_node(west_id):
+                    graph.add_edge(node_id, west_id)
         return graph
 
     def print(self):
         print(self.g)
 
+    def node_ids(self):
+        for k in self.g:
+            yield k
+
     def get_node(self, node_id):
         if node_id not in self.g:
             return None
         return self.g[node_id]
+
+    def get_adjacent(self, node_id):
+        if node_id not in self.g:
+            print("not in", self.g)
+            return []
+        return self.g[node_id]["adj"]
 
     def add_node(self, node_id=None, extra=None):
         if node_id is None:
@@ -99,24 +105,26 @@ class GridGraph:
             pathlen = self.shortest_path(source_node_id, node_id)
             yield pathlen
 
-    def shortest_path(self, start, goal):
-        if "dist" in self.g[goal]:
+    def shortest_path(self, start, goal, just_dists=True):
+        if just_dists and "dist" in self.g[goal]:
             return self.g[goal]["dist"]
 
         frontier = PriorityQueue()
         frontier.put(start, 0)
+        came_from = {"start": None}
         cost_so_far = {}
         cost_so_far[start] = 0
 
         while not frontier.empty():
             current = frontier.get()
 
-            if (
-                "dist" in self.g[current]
-                and cost_so_far[current] != self.g[current]["dist"]
-            ):
-                raise Exception("What!")
-            self.g[current]["dist"] = cost_so_far[current]
+            if just_dists:
+                if (
+                    "dist" in self.g[current]
+                    and cost_so_far[current] != self.g[current]["dist"]
+                ):
+                    raise Exception("Unexpected distance")
+                self.g[current]["dist"] = cost_so_far[current]
 
             if current == goal:
                 break
@@ -127,5 +135,65 @@ class GridGraph:
                     cost_so_far[next] = new_cost
                     priority = new_cost
                     frontier.put(next, priority)
+                    if not just_dists:
+                        came_from[next] = current
 
-        return cost_so_far[goal]
+        if just_dists:
+            return cost_so_far[goal]
+        else:
+            return cost_so_far[goal], came_from
+
+    def a_star(self, start, goal, heuristic, adjacent=None, priority_extra=None):
+        """A* algorithm with customizations.
+
+        E.g. Manhattan heuristics:
+            def heuristic_func(a, b, G):
+                x1 = a[0]
+                y1 = a[1]
+                x2 = b[0]
+                y2 = b[1]
+                return abs(x1 - x2) + abs(y1 - y2)
+
+        E.g. make priority queue take y, x coordinates into account beside cost:
+            def extra_func(node_id, G):
+                return (node_id[1], node_id[0])
+
+        E.g. Filter adjacent squares
+            def adjacent_func(adjacent_ids, goal_id, G):
+                adjacent = []
+                for adj_id in adjacent_ids:
+                    adj = G.get_node(adj_id)
+                    if adj['monster'] is not None:
+                        continue
+                    adjacent.append(adj_id)
+                return adjacent
+        """
+        frontier = PriorityQueue()
+        if priority_extra:
+            extra = priority_extra(start, self)
+        else:
+            extra = None
+        frontier.put(start, 0, extra=extra)
+        came_from = {start: []}
+        cost_so_far = {start: 0}
+
+        while not frontier.empty():
+            current = frontier.get()
+            if current == goal:
+                break
+
+            adjacent_ids = self.g[current]["adj"]
+            if adjacent:
+                adjacent_ids = adjacent(adjacent_ids, goal, self)
+            for adj in adjacent_ids:
+                new_cost = cost_so_far[current] + 1
+                if adj not in cost_so_far or new_cost < cost_so_far[adj]:
+                    cost_so_far[adj] = new_cost
+                    priority = new_cost + heuristic(goal, adj, self)
+                    if priority_extra:
+                        extra = priority_extra(adj, self)
+                    else:
+                        extra = None
+                    frontier.put(adj, priority, extra=extra)
+                    came_from[adj] = current
+        return cost_so_far, came_from
