@@ -31,32 +31,29 @@ class Solver(PuzzleSolver):
         """Solution for part two."""
         return None
 
-    def solve(self):
-        return (self.solve_part_one(), self.solve_part_two())
-
 
 def main(input_data):
     example_input = """
     """
-    # s = Solver(from_file="InputFILENAME")
     s = Solver(from_str=example_input)
     one = s.solve_part_one()
     print(one)
     assert one == 0
 
-    # s = Solver(from_file="InputFILENAME")
+    s = Solver(from_file="InputFILENAME")
+    one = s.solve_part_one()
+    print(one)
+    assert one == 0
+
     s = Solver(from_str=example_input)
     two = s.solve_part_two()
     print(two)
     assert two == 0
-    return
 
     s = Solver(from_file="InputFILENAME")
-    (one, two) = s.solve()
-    print(one)
+    two = s.solve_part_two()
     print(two)
-    # print("{:s}".format(one))
-    # print("{:s}".format(two))
+    assert two == 0
 
 
 if __name__ == "__main__":
