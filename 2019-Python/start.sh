@@ -49,9 +49,9 @@ tmux split-window -h -t advent
 tmux split-window -h -t advent
 tmux select-layout -t advent even-horizontal
 tmux split-window -v -t advent:1.1
-tmux send-keys -t advent:1.4 "pyenv activate advent; python" C-m
-tmux send-keys -t advent:1.3 "vim ${OUTPUT} ${TEST_OUTPUT}" C-m
-tmux send-keys -t advent:1.1 "pyenv activate advent; ./watch.sh ${YEAR} ${DAY}" C-m
-tmux send-keys -t advent:1.2 "pyenv activate advent; ./watch_test.sh ${YEAR} ${DAY}" C-m
+tmux send-keys -t advent:1.4 "pipenv shell; python" C-m
+tmux send-keys -t advent:1.3 "pipenv shell; vim ${OUTPUT} ${TEST_OUTPUT}" C-m
+tmux send-keys -t advent:1.1 "pipenv shell; ./watch.sh ${YEAR} ${DAY}" C-m
+tmux send-keys -t advent:1.2 "pipenv shell; ./watch_test.sh ${YEAR} ${DAY}" C-m
 tmux select-pane -t advent:1.3
 tmux attach -t advent
