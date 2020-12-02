@@ -1,0 +1,66 @@
+---
+title: "Day 2: Password Philosophy"
+author: Jonas Nockert (@lemonad)
+output:
+  github_document:
+    fig_width: 10
+    fig_height: 5
+    dev: png
+    df_print: kable
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+library(tidyverse)
+library(ggplot2)
+library(ggforce)
+library(gridExtra)
+library(grid)
+library(kableExtra)
+library(pryr)
+library(rvest)
+library(skimr)
+library(stringr)
+library(tibble)
+```
+
+I'm using R for this year's Advent of Code. Learning as I go, which is quite obvious here : )
+
+
+```{r}
+lines <- read_lines("./input/december02.input")
+lines %>% head(n = 3)
+lines %>% tail(n = 3)
+```
+
+```{r}
+matches <- lines %>%
+  str_match("^(\\d+)\\-(\\d+) ([a-z]): ([a-z]+)") %>%
+  as_tibble() %>%
+  transmute(
+    low = as.integer(V2),
+    high = as.integer(V3),
+    c = V4,
+    password = V5
+  )
+
+n_valid <- str_count(matches$password, fixed(matches$c)) %>% {
+  . >= matches$low & . <= matches$high
+  } %>%
+  sum()
+```
+
+There are `r n_valid` valid passwords (for the sled rental place down the street).
+
+
+```{r}
+n_actually_valid <- xor(
+  str_sub(matches$password, matches$low, matches$low) == matches$c,
+  str_sub(matches$password, matches$high, matches$high) == matches$c
+) %>%
+  sum()
+```
+
+There are `r n_actually_valid` valid passwords for the Official Toboggan Corporate Authentication System.
