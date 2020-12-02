@@ -1,0 +1,83 @@
+---
+title: "Day 1: Report Repair"
+author: Jonas Nockert (@lemonad)
+output:
+  github_document:
+    fig_width: 10
+    fig_height: 5
+    dev: png
+    df_print: kable
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+library(tidyverse)
+library(ggplot2)
+library(ggforce)
+library(gridExtra)
+library(grid)
+library(kableExtra)
+library(pryr)
+library(rvest)
+library(skimr)
+library(stringr)
+library(tibble)
+```
+
+I'm using R for this year's Advent of Code. Learning as I go, which is quite obvious here : )
+
+
+```{r}
+lines <- read_lines("./input/december01.input") %>%
+  parse_number() %>%
+  sort()
+
+lines %>% head()
+lines %>% tail()
+```
+
+Find all pairs of numbers that sum to <= 2020 and store as a list of `c(num1 + num2, num1, num2)` lists:
+
+```{r}
+up_to_2020 <- map(
+  rev(lines),
+  function(x) {
+    which((lines < x) & (lines + x <= 2020)) %>%
+      map(function(y) c(x + lines[y], x, lines[y]))
+  }
+) %>%
+  flatten()
+
+up_to_2020 %>% head(3)
+```
+
+
+Out of all pairs summing to <= 2020, which pair sums to exactly 2020? Compute its product.
+
+```{r}
+pair_2020 <- up_to_2020[map(up_to_2020, 1) == 2020] %>%
+  head(1) %>%
+  unlist() %>%
+  tail(2)
+```
+
+Numbers `r pair_2020[1]` and `r pair_2020[2]` sum to `r sum(pair_2020)` and their product is `r prod(pair_2020)`.
+
+Now, use the pairs above in order to find triples that sum to 2020:
+
+```{r}
+triple_2020 <- map(
+  up_to_2020,
+  function(x) {
+    which((lines < x[1]) & (lines + x[1] == 2020)) %>%
+      map(function(y) c(lines[y], x[2], x[3]))
+  }
+) %>%
+  flatten() %>%
+  head(1) %>%
+  unlist()
+```
+
+Numbers `r triple_2020[1]`, `r triple_2020[2]`, and `r triple_2020[3]` sum to `r sum(pair_2020)` and their product is `r prod(triple_2020)`.
