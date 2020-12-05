@@ -1,0 +1,163 @@
+---
+title: "Day 5: Binary Boarding"
+author: Jonas Nockert (@lemonad)
+output:
+  github_document:
+    fig_width: 10
+    fig_height: 5
+    dev: png
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+library(tidyverse)
+library(ggplot2)
+library(ggforce)
+library(gridExtra)
+library(grid)
+library(kableExtra)
+library(pryr)
+library(rvest)
+library(skimr)
+library(stringr)
+library(tibble)
+```
+
+I'm using R for this year's Advent of Code. Learning as I go, which is quite obvious here : )
+
+We'll start with reading the input and seeing that it conforms to what I think are the rules.
+First 7 are row partition characters (127 seat rows), followed by 3 seating partition characters
+(8 seats per row):
+
+```{r}
+lines <- read_lines("input/december05.input")
+lines %>% str_detect("^[BF]{7}[LR]{3}$") %>% all()
+```
+
+Great! Now, we can write a function to take a boarding pass and transform into a seat id. The idea
+is that the `BF` part is a 7-bit binary representation, giving row values 0--126. The `FR` part is a
+3-bit binary representation giving seat values 0-7. The final seat ID is given by `row * 8 * seat`.
+
+But wait. That means that it's just a 10-bit representation:
+
+```{r}
+get_seat_id <- function(.data) {
+  # Enable piping a vector/list into the function? Weird that
+  # typeof(c("aa", "bb")) == typeof("aa") == "character" so
+  # using `is.vector`, `is.list` or similar does not work.
+  if (length(.data) > 1) {
+    return(map_int(.data, get_seat_id))
+  }
+
+  m <- .data %>%
+    str_extract("^[BFLR]{10}$")
+  if (is.na(m)) return(NA)
+
+  z <- Map(c, unlist(str_split(m, "")), 9:0)
+  reduce(
+    z,
+    function(acc, x) {
+      ifelse(
+        x[1] == "F" || x[1] == "L",
+        acc,
+        acc + bitwShiftL(1, x[2])
+      )
+    },
+    .init = 0L
+  )
+}
+```
+
+Let's test it out on the given examples:
+
+```{r}
+all(
+  get_seat_id("FBFBBFFRLR") == 357,
+  get_seat_id("BFFFBBFRRR") == 567,
+  get_seat_id("FFFBBBFRRR") == 119,
+  get_seat_id("BBFFBBFRLL") == 820
+)
+```
+OK! Now, we want to get the highest seat ID of all boarding passes:
+
+```{r}
+seat_ids <- lines %>%
+  get_seat_id()
+
+seat_ids %>%
+  max()
+```
+
+
+## Part two
+Here we are trying to find our seat on a full flight. These are the seats missing from our
+list of seat ids:
+
+```{r}
+missing <- 0:1023 %>% setdiff(seat_ids)
+missing
+```
+
+This does not look like a full flight but apparently, some seats are missing at the very front and back of the plane so it's quite obvious which seat is ours. However, since we know we will have a series of consecutive numbers followed by a gap (it is given that seats +1 and -1 from ours are taken) and then our seat, a gap, and then consecutive numbers again, we can find our seat using the following:
+
+```{r}
+# The second index represents the number before the second gap (our seat id!)
+our_seat <- missing[diff(missing) > 1][2]
+our_seat
+```
+
+Where is this seat located in the plane? First, we need to figure out how many rows are missing from the plane:
+
+```{r}
+our_index <- match(our_seat, missing)
+max(missing[0:(our_index - 1)]) / 8
+min(missing[(our_index + 1):length(missing)]) / 8
+```
+
+Ah, so it's actually a number of whole rows _and_ some seats missing. OK, let's try this setup:
+
+```{r}
+missing_front <- floor(max(missing[0:(our_index - 1)]) / 8) * 8 - 1
+missing_back <- ceiling(min(missing[(our_index + 1):length(missing)]) / 8) * 8
+rows_missing <- c(0:missing_front, missing_back:1023)
+seats_missing <- missing %>% setdiff(rows_missing) %>% setdiff(our_seat)
+```
+
+We can now visualize the seating on the plane, where the front of the plane is up (I think : )
+
+```{r}
+0:1023 %>%
+  setdiff(rows_missing) %>%
+  matrix(nrow = 8) %>%
+  t() %>%
+  as_tibble() %>%
+  mutate(
+    across(
+      .cols = everything(),
+      function(x) {
+        case_when(
+          x %in% seats_missing ~ 2,
+          x == 532 ~ 1,
+          TRUE ~ 0
+        )
+      }
+    )
+  ) %>%
+  mutate(y = row_number()) %>%
+  pivot_longer(cols = 1:8, names_to = "x") %>%
+  mutate(
+    x = as.integer(str_sub(x, 2)),
+    value = as.factor(value)
+  ) %>%
+  ggplot(aes(x = -x, y = -y, fill = value)) +
+  geom_tile() +
+  scale_fill_manual(values = c("darksalmon", "green", "gray")) +
+  coord_equal() +
+  xlab("") +
+  ylab("") +
+  labs(title = "") +
+  theme_void() +
+  theme(legend.position = "none")
+```
