@@ -1,0 +1,106 @@
+---
+title: "Day 6: Custom Customs"
+author: Jonas Nockert (@lemonad)
+output:
+  github_document:
+    fig_width: 10
+    fig_height: 5
+    dev: png
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+library(tidyverse)
+library(ggplot2)
+library(ggforce)
+library(gridExtra)
+library(grid)
+library(kableExtra)
+library(pryr)
+library(rvest)
+library(skimr)
+library(stringr)
+library(tibble)
+```
+
+I'm using R for this year's Advent of Code. Learning as I go, which is quite obvious here : )
+
+It seems the biggest problem of part one is the grouping with empty lines. Especially since I struggle with parsing in R, it always seem to result in much more code than I initially expect.
+
+```{r}
+lines <- read_file("input/december06.input")
+lines %>%
+  str_split("\\n\\n") %>%
+  unlist() %>%
+  lapply(function(x) {
+    str_replace_all(x, "\\n", "") %>%
+    str_split("") %>%
+    unlist() %>%
+    unique %>%
+    length
+  }) %>%
+  reduce(sum)
+```
+
+Okay, that's quite readable but, still, it's basically trial and error with the `unlist`'s.
+
+
+## Part two
+Uh oh, there's not much to reuse from part one here.
+
+```{r}
+lines %>%
+  str_split("\\n\\n") %>%
+  unlist() %>%
+  str_split("\\n") %>%
+  lapply(
+    function(x) {
+      str_split(x, "") %>%
+      reduce(intersect) %>%
+      length()
+    }
+  ) %>%
+  unlist() %>%
+  sum()
+```
+
+Hm, not the right answer (but someone else's answer so I'm assuming it is pretty close). Let's investigate...
+
+```{r}
+lines %>%
+  str_split("\\n\\n") %>%
+  unlist() %>%
+  str_split("\\n") %>%
+  tail(n = 2)
+```
+Aha, so the intersection of the last set of strings is "", I guess there is some new line at the end.
+
+```{r}
+lines %>%
+  str_split("\\n\\n") %>%
+  unlist() %>%
+  .[str_detect(., "\\n$")]
+```
+
+Yes, there's only one trailing newline and it's on the very last line. Gah, I've forgotten to trim whitespace when reading the input. Let's try this again:
+
+```{r}
+lines <- trimws(read_file("input/december06.input"))
+lines %>%
+  str_split("\\n\\n") %>%
+  unlist() %>%
+  str_split("\\n") %>%
+  lapply(
+    function(x) {
+      str_split(x, "") %>%
+      reduce(intersect) %>%
+      length()
+    }
+  ) %>%
+  unlist() %>%
+  sum()
+```
+
+That did the trick : )
